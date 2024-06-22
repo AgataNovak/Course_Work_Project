@@ -7,7 +7,23 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+logging = "^0.4.9.6"
+openpyxl = "^3.1.4"
+pandas = "^2.2.2"
+xlrd = "^2.0.1"
+requests = "^2.32.3"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+pytest-cov = "^5.0.0"
+
+
+[tool.poetry.group.lint.dependencies]
+black = "^24.4.2"
+isort = "^5.13.2"
+flake8 = "^7.1.0"
+mypy = "^1.10.0"
 
 [build-system]
 requires = ["poetry-core"]
