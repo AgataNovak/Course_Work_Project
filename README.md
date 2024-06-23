@@ -30,8 +30,8 @@ https://github.com/AgataNovak/Course_Work_Project
 1. views.py
 2. services.py
 3. reports.py
-Excel файл с транзакциями должен находиться в директории Data
-user_settings.json файл должен находиться в корневой директории
+Excel файл с транзакциями должен находиться в директории data
+user_settings.json файл должен находиться в директории data
 
 
 ## Тестирование:
