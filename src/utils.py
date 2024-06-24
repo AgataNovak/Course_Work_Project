@@ -147,12 +147,14 @@ def external_api_currency(api_key):
     headers = CaseInsensitiveDict()
     headers["apikey"] = api_key
     resp = requests.get(url, headers=headers)
-    if resp.status_code == "200":
+    if resp.status_code == 200:
 
         logger.info("Ответ от стороннего апи валют получен. Код ответа - 200. Успешно.")
         logger.info("Функция external_api_currency успешно вернула JSON ответ")
         return resp.json()
     else:
+        print(resp.status_code)
+        print(resp.json())
 
         logger.error("Ответ от стороннего апи валют неуспешный. Ошибка получения JSON ответа")
 
