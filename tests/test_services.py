@@ -1,47 +1,25 @@
-import unittest
-
 from src.services import search_by_string
 
 
-class TestSearchByString(unittest.TestCase):
+class TestSearchByString:
 
-    def test_search_by_string(self):
-        data = {
-            "Дата операции": {0: "2021.06.13", 1: "2022.03.20", 2: "2024.06.22"},
-            "Номер карты": {0: "*7538", 1: "*4567", 2: "*0003"},
-            "Статус": {0: "OK", 1: "OK", 2: "CANCELED"},
-            "Сумма операции": {0: -13500, 1: -169, 2: 5000},
-            "Категория": {0: "Переводы", 1: "Аптеки", 2: "Пополнения"},
-            "Описание": {
-                0: "Лотков Д.",
-                1: "Каршеринг",
-                2: "Пополнение через Газпромбанк",
-            },
-        }
+    def test_search_by_string(self, my_data_dict):
+
         result = [
             {
-                "Дата операции": "2024.06.22",
+                "Дата операции": "15.12.2021 07:35:15",
+                "Дата платежа": "15.12.2021",
                 "Категория": "Пополнения",
                 "Номер карты": "*0003",
                 "Описание": "Пополнение через Газпромбанк",
                 "Статус": "CANCELED",
                 "Сумма операции": 5000,
+                "Сумма операции с округлением": 5000,
             }
         ]
-        assert search_by_string("Газпром", data) == result
+        assert search_by_string("Газпром", my_data_dict) == result
 
-    def test_search_by_string_nothing_found(self):
-        data = {
-            "Дата операции": {0: "2021.06.13", 1: "2022.03.20", 2: "2024.06.22"},
-            "Номер карты": {0: "*7538", 1: "*4567", 2: "*0003"},
-            "Статус": {0: "OK", 1: "OK", 2: "CANCELED"},
-            "Сумма операции": {0: -13500, 1: -169, 2: 5000},
-            "Категория": {0: "Переводы", 1: "Аптеки", 2: "Пополнения"},
-            "Описание": {
-                0: "Лотков Д.",
-                1: "Каршеринг",
-                2: "Пополнение через Газпромбанк",
-            },
-        }
+    def test_search_by_string_nothing_found(self, my_data_dict):
+
         result = []
-        assert search_by_string("Example", data) == result
+        assert search_by_string("Example", my_data_dict) == result

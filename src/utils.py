@@ -38,12 +38,12 @@ def greetings_by_daytime(date):
     return greeting
 
 
-def get_transactions_data():
+def get_transactions_data(data):
     """Функция возвращает данные из существующего excel файла"""
 
     logger.info("Запущена функция get_transactions_data")
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    path_to_excel = os.path.join(current_dir, "../data", "operations.xls")
+    path_to_excel = os.path.join(current_dir, "../data", f"{data}")
     with open(path_to_excel, "rb") as excel_file:
         data = pd.read_excel(excel_file)
         data = data.to_dict()
@@ -154,9 +154,7 @@ def external_api_currency(api_key):
         return resp.json()
     else:
 
-        logger.error(
-            "Ответ от стороннего апи валют неуспешный. Ошибка получения JSON ответа"
-        )
+        logger.error("Ответ от стороннего апи валют неуспешный. Ошибка получения JSON ответа")
 
         return []
 
@@ -173,9 +171,7 @@ def external_api_stock_prices(stock_list, api_key):
         response = requests.get(url)
         if response.status_code == 200:
             try:
-                stock_dicts_list.append(
-                    {"stock": stock, "price": response.json()["data"][0]["mark"]}
-                )
+                stock_dicts_list.append({"stock": stock, "price": response.json()["data"][0]["mark"]})
             except KeyError:
                 logger.error(f"Ошибка получения JSON ответа от апи: {response.json()}")
                 return []
@@ -206,9 +202,7 @@ def get_user_stocks(path_to_user_json):
             data = json.load(user_settings_json)
             stock_list = data[0]["user_stocks"]
 
-            logger.info(
-                "Функция get_user_stocks успешно вернула список акций пользователя"
-            )
+            logger.info("Функция get_user_stocks успешно вернула список акций пользователя")
 
             return stock_list
 
@@ -230,9 +224,7 @@ def get_user_currencies(path_to_user_json):
             data = json.load(user_settings_json)
             currencies_list = data[0]["user_currencies"]
 
-            logger.info(
-                "Функция get_user_currencies успешно вернула список валют пользователя"
-            )
+            logger.info("Функция get_user_currencies успешно вернула список валют пользователя")
 
             return currencies_list
     except FileNotFoundError as ex:
@@ -261,15 +253,11 @@ def get_currencies_rates_json(currency_list, currency_response_json):
     for currency in currency_list:
         try:
             rub_currency_to_usd = currency_response_json["data"]["RUB"]
-            currency_to_rub = (
-                1 / currency_response_json["data"][currency] * rub_currency_to_usd
-            )
+            currency_to_rub = 1 / currency_response_json["data"][currency] * rub_currency_to_usd
             currencies.append({"currency": currency, "rate": round(currency_to_rub, 2)})
         except TypeError:
 
-            logger.error(
-                "Ошибка функции get_currencies_rates_json. Пустой ответ от апи"
-            )
+            logger.error("Ошибка функции get_currencies_rates_json. Пустой ответ от апи")
 
             return []
 

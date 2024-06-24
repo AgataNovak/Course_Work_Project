@@ -16,7 +16,7 @@ def spending(data, category, date=datetime.datetime.now()):
     и возвращает траты по заданной категории за последние три месяца от переданной даты.
     По умолчанию дата принимается сегодняшним числом на момент запуска функции"""
 
-    logger.info("Запушена функция spending")
+    logger.info("Запущена функция spending")
 
     data_dict = data.to_dict()
     result = []
@@ -41,9 +41,7 @@ def spending(data, category, date=datetime.datetime.now()):
                             day=(current_date_obj.day - 1),
                         )
                     else:
-                        limit_day = current_date_obj.replace(
-                            month=(current_date_obj.month - 3)
-                        )
+                        limit_day = current_date_obj.replace(month=(current_date_obj.month - 3))
                 else:
                     if current_date_obj.month == 2:
                         limit_day = current_date_obj.replace(
@@ -75,9 +73,7 @@ def spending(data, category, date=datetime.datetime.now()):
                                 }
                             )
 
-        logger.info(
-            "Функция spending успешно вернула список с отфильтрованными транзакциями"
-        )
+        logger.info("Функция spending успешно вернула список с отфильтрованными транзакциями")
 
         return result
     except KeyError as ex:
@@ -88,7 +84,7 @@ def spending(data, category, date=datetime.datetime.now()):
 
 
 if __name__ == "__main__":
-    data = pd.DataFrame(get_transactions_data())
+    data = pd.DataFrame(get_transactions_data("operations.xls"))
     result = spending(data, "Переводы", "32.12.2021 23:30:30")
     for operation in result:
         print(operation)

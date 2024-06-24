@@ -3,29 +3,26 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
+import pytest
 
-from src.utils import (cards_info, external_api_currency,
-                       external_api_stock_prices, get_currencies_rates_json,
-                       get_stocks_rates_json, get_transactions_data,
-                       get_user_currencies, get_user_stocks,
+from src.utils import (cards_info, external_api_currency, external_api_stock_prices, get_currencies_rates_json,
+                       get_stocks_rates_json, get_transactions_data, get_user_currencies, get_user_stocks,
                        greetings_by_daytime, period, top_transactions)
 
 
-class TestGreetingsByDaytime(unittest.TestCase):
+class TestGreetingsByDaytime:
 
-    def test_greetings_by_daytime(self):
-        assert greetings_by_daytime("2024.06.21 09:30:30") == {
-            "greetings": "Доброе утро!"
-        }
-        assert greetings_by_daytime("2024.06.21 13:00:50") == {
-            "greetings": "Добрый день!"
-        }
-        assert greetings_by_daytime("2003.01.09 19:55:00") == {
-            "greetings": "Добрый вечер!"
-        }
-        assert greetings_by_daytime("2003.01.09 01:55:00") == {
-            "greetings": "Доброй ночи!"
-        }
+    @pytest.mark.parametrize(
+        "date, expected",
+        [
+            ("2024.06.21 09:30:30", {"greetings": "Доброе утро!"}),
+            ("2024.06.21 13:00:50", {"greetings": "Добрый день!"}),
+            ("2024.06.21 18:00:50", {"greetings": "Добрый вечер!"}),
+            ("2003.01.09 01:55:00", {"greetings": "Доброй ночи!"}),
+        ],
+    )
+    def test_greetings_by_daytime(self, date, expected):
+        assert greetings_by_daytime(date) == expected
 
 
 class GetTransactionsData(unittest.TestCase):
@@ -44,7 +41,7 @@ class GetTransactionsData(unittest.TestCase):
 
     @patch("pandas.read_excel", return_value=df)
     def test_get_transactions_data(self, mock_read_excel: MagicMock) -> None:
-        result = get_transactions_data()
+        result = get_transactions_data("operations.xls")
         self.assertEqual(
             result,
             {
@@ -59,26 +56,20 @@ class GetTransactionsData(unittest.TestCase):
     @patch("pandas.read_excel")
     def test_get_transactions_data_empty(self, mock_read_excel):
         mock_read_excel.return_value = pd.DataFrame({})
-        transactions = get_transactions_data()
+        transactions = get_transactions_data("operations.xls")
         self.assertEqual(transactions, {})
 
 
-class TestCardsInfo(unittest.TestCase):
+class TestCardsInfo:
 
-    def test_cards_info(self):
-        data = {
-            "Дата платежа": {0: "2021.12.31 16:30:24"},
-            "Номер карты": {0: "*7358"},
-            "Статус операции": {0: "OK"},
-            "Сумма операции": {0: -16000},
-            "Категория": {0: "Супермаркеты"},
-        }
+    def test_cards_info(self, my_data):
         result = {
             "cards": [
-                {"last_digits": "7358", "total_spent": "16000", "cashback": "160.0"}
+                {"cashback": "1.69", "last_digits": "4567", "total_spent": "169"},
+                {"cashback": "135.0", "last_digits": "7538", "total_spent": "13500"},
             ]
         }
-        assert cards_info(data_excel=data) == result
+        assert cards_info(data_excel=my_data) == result
 
 
 class TestPeriod(unittest.TestCase):
@@ -120,21 +111,17 @@ class TestPeriod(unittest.TestCase):
         assert period(date) == result
 
 
-class TestTopTransactions(unittest.TestCase):
+class TestTopTransactions:
 
-    def test_top_transactions(self):
-        data = {
-            "Дата платежа": {0: "2021.12.29 16:30:24"},
-            "Номер карты": {0: "*7358"},
-            "Статус": {0: "OK"},
-            "Сумма операции с округлением": {0: -16000},
-            "Сумма операции": {0: -16000},
-            "Категория": {0: "Супермаркеты"},
-            "Описание": {0: "Колхоз"},
-        }
+    def test_top_transactions(self, my_data):
         date = "2021.12.31 16:30:24"
-        result = {"top transactions": []}
-        assert top_transactions(date, data) == result
+        result = {
+            "top transactions": [
+                {"amount": -169, "category": "Переводы", "date": "28.12.2021", "description": "Каршеринг"},
+                {"amount": -13500, "category": "Переводы", "date": "31.12.2021", "description": "Лотков Д."},
+            ]
+        }
+        assert top_transactions(date, my_data) == result
 
 
 class TestExternalApiCurrency(unittest.TestCase):
@@ -165,12 +152,8 @@ class TestExternalApiStockPrices(unittest.TestCase):
     def test_external_api_stock_prices(self, mock_get):
         stock_list = ["APPL"]
         mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            "data": {0: {"sign": "APPL", "mark": 260.00}}
-        }
-        assert external_api_stock_prices(stock_list, "test_api_key") == [
-            {"price": 260.0, "stock": "APPL"}
-        ]
+        mock_get.return_value.json.return_value = {"data": {0: {"sign": "APPL", "mark": 260.00}}}
+        assert external_api_stock_prices(stock_list, "test_api_key") == [{"price": 260.0, "stock": "APPL"}]
 
     @patch("requests.get")
     def test_external_api_stock_prices_refused_response(self, mock_get):
@@ -221,9 +204,7 @@ class TestGetStockRatesJson(unittest.TestCase):
 
     def test_get_stocks_rates(self):
         stock_dict = [{"stock": "APPL", "price": 260.0}]
-        assert get_stocks_rates_json(stock_dict) == {
-            "stock_prices": [{"stock": "APPL", "price": 260.0}]
-        }
+        assert get_stocks_rates_json(stock_dict) == {"stock_prices": [{"stock": "APPL", "price": 260.0}]}
 
 
 class TestGetCurrenciesRatesJson(unittest.TestCase):
@@ -237,6 +218,4 @@ class TestGetCurrenciesRatesJson(unittest.TestCase):
                 {"currency": "EUR", "rate": 77.47},
             ]
         }
-        assert (
-            get_currencies_rates_json(currency_list, currency_response_json) == result
-        )
+        assert get_currencies_rates_json(currency_list, currency_response_json) == result

@@ -27,15 +27,13 @@ def search_by_string(string, data):
                 dict_of_coincidences.update({key: data[f"{key}"][i]})
             dict_info.append(dict_of_coincidences)
 
-    logger.info(
-        "Функция search_by_string успешно вернула список отфильрованных транзакций"
-    )
+    logger.info("Функция search_by_string успешно вернула список отфильрованных транзакций")
 
     return dict_info
 
 
 if __name__ == "__main__":
-    data = get_transactions_data()
+    data = get_transactions_data("operations.xls")
     result = search_by_string("Перевод", data)
     for operation in result:
         print(operation)
